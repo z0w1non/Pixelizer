@@ -230,12 +230,16 @@ def pixelize(image, config):
     else:
         new_h = max_side
         new_w = int(org_w * max_side / org_h)
+
+    new_w = (new_w // pixel_size) * pixel_size
+    new_h = (new_h // pixel_size) * pixel_size
+
     image = image.resize((new_w, new_h), Image.Resampling.LANCZOS)
 
     image = image.filter(ImageFilter.MedianFilter())
     size = (image.size[0] // pixel_size, image.size[1] // pixel_size)
     image = image.resize(size)
-    
+   
     output_image = Image.new("RGB", size)
     output_image.paste(image)
     
