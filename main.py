@@ -181,7 +181,7 @@ def create_tone_colors(tone_number):
     for rtone in range(tone_number):
         for gtone in range(tone_number):
             for btone in range(tone_number):
-                result.append(((255 * rtone // tone_number), (255 * gtone // tone_number), (255 * btone // tone_number)))
+                result.append(((255 * rtone // (tone_number - 1)), (255 * gtone // (tone_number - 1)), (255 * btone // (tone_number - 1))))
     return result
 
 def image_to_image(image_path, config):
