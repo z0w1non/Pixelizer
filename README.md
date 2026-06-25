@@ -25,9 +25,6 @@ python main.py Lenna_input.png Lenna_output.png --tone-number 12 --color-number 
 	* ドット絵として見栄えが良くなるよう、自動で画像のエッジや色彩を強調する。
 
 ## 必須環境
-
-本プログラムを実行するには、以下の環境およびライブラリが必要です。
-
 * Python 3.x
 * Pillow (PIL): 画像処理用
 * OpenCV (opencv-python): 動画のフレーム抽出用
