@@ -3,13 +3,12 @@
 
 ## 変換例
 
+参考データセット: https://github.com/MohamedBakrAli/Kodak-Lossless-True-Color-Image-Suite
+
 | 変換前 | 変換後 |
 | :---: | :---: |
-| ![Input Image](Lenna_input.png) | ![Output Image](Lenna_output.png) |
-
-```bash
-python main.py Lenna_input.png Lenna_output.png --tone-number 12 --color-number 32
-```
+| ![Input Image](Sample/Input/PhotoCD_PCD0992/23.png) | ![Output Image](Sample/Output/PhotoCD_PCD0992/23.png) |
+| ![Input Image](Sample/Input/PhotoCD_PCD0992/24.png) | ![Output Image](Sample/Output/PhotoCD_PCD0992/24.png) |
 
 ## 主な機能
 
@@ -55,5 +54,5 @@ python main.py input.mp4 output.gif
 | --fps | int | 4 | 動画を出力する場合の1秒あたりのフレーム数。 |
 | --pixel-size | int | 5 | ドット（ピクセル）の大きさ。値を大きくするほど、より粗いドット絵になる。 |
 | --color-number | int | 16 | メディアンカットで抽出するベースの色数。 |
-| --tone-number | int | 4 | 各RGBチャンネルの階調数（4の場合、4 ^ 3 = 64 色のパレットから色が選択される）。 |
+| --tone-number | int | 8 | 各RGBチャンネルの階調数（N の場合、N ^ 3 色のパレットから色が選択される）。 |
 | --max-side | int | 640 | 入力画像の長辺の最大ピクセル数。処理の最初にこのサイズへ自動で正規化される。|

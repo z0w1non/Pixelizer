@@ -265,7 +265,7 @@ def main():
     parser.add_argument("--fps", type=int, default=4, help="Frames per second for video processing (default: 4).")
     parser.add_argument("--pixel-size", type=int, default=5, help="Size of the pixel dots (default: 5).")
     parser.add_argument("--color-number", type=int, default=16, help="Number of colors for median cut (default: 16).")
-    parser.add_argument("--tone-number", type=int, default=4, help="Number of tones per RGB channel (default: 4).")
+    parser.add_argument("--tone-number", type=int, default=8, help="Number of tones per RGB channel (default: 8).")
     parser.add_argument("--max-side", type=int, default=640, help="Max length of the image's longer side (default: 640).")
 
     args = parser.parse_args()
