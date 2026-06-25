@@ -7,7 +7,9 @@
 
 | 変換前 | 変換後 |
 | :---: | :---: |
+| kodim 23 (Input) | kodim 23 (Output) |
 | ![Input Image](Sample/Input/PhotoCD_PCD0992/23.png) | ![Output Image](Sample/Output/PhotoCD_PCD0992/23.png) |
+| kodim 24 (Input) | kodim 24 (Output) |
 | ![Input Image](Sample/Input/PhotoCD_PCD0992/24.png) | ![Output Image](Sample/Output/PhotoCD_PCD0992/24.png) |
 
 ## 主な機能
