@@ -1,4 +1,6 @@
 import sys
+import os
+import argparse
 import copy
 import math
 from PIL import Image, ImageFilter, ImageEnhance
@@ -144,7 +146,7 @@ def map_color(image, colors):
     for y in range(image.size[1]):
         for x in range(image.size[0]):
             color = image.getpixel((x, y))
-            # print(color)
+            print(color)
             image.putpixel((x, y), get_nearest_color(color, colors))
 
 def map_tile(image, tiles):
@@ -182,9 +184,13 @@ def create_tone_colors(tone_number):
                 result.append(((255 * rtone // tone_number), (255 * gtone // tone_number), (255 * btone // tone_number)))
     return result
 
-def video_to_images(video_path, fps):
+def image_to_image(image_path, config):
+    return [pixelize(Image.open(image_path), config)]
+
+def video_to_images(video_path, config):
     images = []
     
+    fps = config["fps"]
     temp_path = "temp.png"
 
     video = cv2.VideoCapture(video_path)
@@ -198,23 +204,33 @@ def video_to_images(video_path, fps):
     print("capture_frame_number: ", capture_frame_number)
 
     for i in range(capture_frame_number):
-        print(i)
+        print(f"Processing frame {i}...")
         video.set(cv2.CAP_PROP_POS_FRAMES, int(count * i / capture_frame_number) )
         ret, frame = video.read()
         if ret:
             cv2.imwrite(temp_path, frame)
             image = Image.open(temp_path).convert("RGB")
-            images.append(pixelize(image))
+            images.append(pixelize(image), config)
         else:
             return
     
     return images
     
-def pixelize(image):
+def pixelize(image, config):
     # parameters
-    pixel_size = 20
-    color_number = 16
-    tone_number = 8
+    max_side = config["max_side"]
+    pixel_size = config["pixel_size"]
+    color_number = config["color_number"]
+    tone_number = config["tone_number"]
+
+    org_w, org_h = image.size
+    if org_w > org_h:
+        new_w = max_side
+        new_h = int(org_h * max_side / org_w)
+    else:
+        new_h = max_side
+        new_w = int(org_w * max_side / org_h)
+    image = image.resize((new_w, new_h), Image.Resampling.LANCZOS)
 
     image = image.filter(ImageFilter.MedianFilter())
     size = (image.size[0] // pixel_size, image.size[1] // pixel_size)
@@ -231,22 +247,57 @@ def pixelize(image):
     tiles = create_dither_tiles(colors)
     map_tile(output_image, tiles)
 
-    #output_image = output_image.resize((size[0] * pixel_size, size[1] * pixel_size), Image.NEAREST)
-    output_image = output_image.resize((size[0] * 5, size[1] * 5), Image.NEAREST)
+    output_image = output_image.resize((size[0] * pixel_size, size[1] * pixel_size), Image.NEAREST)
+    # output_image = output_image.resize((size[0] * 5, size[1] * 5), Image.NEAREST)
+    output_image = output_image.quantize(method=0)
     return output_image
 
 def main():
-    if len(sys.argv) < 3:
-        print("pixelizer <input-video-path> <output-gif-path>", file=sys.stderr)
+    parser = argparse.ArgumentParser(description="Convert video or image to retro pixel art GIF.")
+    
+    parser.add_argument("input_path", type=str, help="Path to the input video or image file.")
+    parser.add_argument("output_path", type=str, help="Path to save the output GIF file.")
+    
+    parser.add_argument("--fps", type=int, default=4, help="Frames per second for video processing (default: 4).")
+    parser.add_argument("--pixel-size", type=int, default=5, help="Size of the pixel dots (default: 5).")
+    parser.add_argument("--color-number", type=int, default=16, help="Number of colors for median cut (default: 16).")
+    parser.add_argument("--tone-number", type=int, default=4, help="Number of tones per RGB channel (default: 4).")
+    parser.add_argument("--max-side", type=int, default=640, help="Max length of the image's longer side (default: 640).")
 
-    input_video_path = sys.argv[1]
-    output_gif_path = sys.argv[2]
+    args = parser.parse_args()
 
-    # parameters
-    fps = 4
+    config = vars(args)
 
-    images = video_to_images(input_video_path, fps)
-    images[0].save(output_gif_path, save_all=True, append_images=images[1:], optimize=False, duration=1000//fps, loop=0, include_color_table=True)
+    _, ext = os.path.splitext(args.input_path)
+    ext = ext.lower()    
+    video_extensions = [".mp4", ".avi", ".mov", ".mkv", ".wmv"]
+    image_extensions = [".png", ".jpg", ".jpeg", ".webp", ".bmp"]
+
+    if ext in video_extensions:
+        images = video_to_images(args.input_path, config)
+    elif ext in image_extensions:
+        images = image_to_image(args.input_path, config)
+    else:
+        print(f"Unsupported extension: {ext}", file=sys.stderr)
+        print(f"Supported video formats: {', '.join(video_extensions)}", file=sys.stderr)
+        print(f"Supported image formats: {', '.join(image_extensions)}", file=sys.stderr)
+        return
+
+    _, out_ext = os.path.splitext(args.output_path)
+    out_ext = out_ext.lower()
+
+    if len(images) > 1 and out_ext == ".gif":
+        images[0].save(
+            args.output_path, 
+            save_all=True, 
+            append_images=images[1:], 
+            optimize=False, 
+            duration=1000 // config["fps"], 
+            loop=0, 
+            include_color_table=True
+        )
+    else:
+        images[0].save(args.output_path, optimize=True)
 
 if __name__ == "__main__":
     main()
